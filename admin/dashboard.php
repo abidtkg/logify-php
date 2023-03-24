@@ -25,13 +25,16 @@ if(!isset($_SESSION['id'])){
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        <a class="nav-link active" aria-current="page" href="dashboard.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">API Ref</a>
+                        <a class="nav-link" href="apps.php">Apps</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">API Tokens</a>
+                        <a class="nav-link" href="token.php">API Tokens</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="api-doc.php">API Ref</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="core.php?logout=true">Logout</a>
@@ -49,16 +52,16 @@ if(!isset($_SESSION['id'])){
         // DATA QUERY FOR DASHBOARD
         $date_today = date("y-m-d");
         $week_date = date("y-m-d", strtotime("-1 Week"));
-        $week_query = "SELECT COUNT(*) as weektotal FROM logs WHERE date BETWEEN '$week_date' AND '$date_today'";
+        $week_query = "SELECT COUNT(*) as weektotal FROM logs WHERE date BETWEEN '$week_date' AND '$date_today' AND user = " . $_SESSION['id'];
         $week_data = mysqli_query($conn, $week_query);
         $week_total_query = mysqli_fetch_assoc($week_data)['weektotal'];
 
         $month_date = date("y-m-d", strtotime("-1 Month"));
-        $month_query = "SELECT COUNT(*) as monthtotal FROM logs WHERE date BETWEEN '$month_date' AND '$date_today'";
+        $month_query = "SELECT COUNT(*) as monthtotal FROM logs WHERE date BETWEEN '$month_date' AND '$date_today' AND user = " . $_SESSION['id'];
         $month_data = mysqli_query($conn, $month_query);
         $month_total_query = mysqli_fetch_assoc($month_data)['monthtotal'];
 
-        $lifetime_query = "SELECT COUNT(*) as total FROM logs";
+        $lifetime_query = "SELECT COUNT(*) as total FROM logs WHERE user = " . $_SESSION['id'];
         $lifetime_data = mysqli_query($conn, $lifetime_query);
         $liftime_total_queries = mysqli_fetch_assoc($lifetime_data)['total'];
     ?>
@@ -94,7 +97,7 @@ if(!isset($_SESSION['id'])){
     </div>
 
 
-    <table class="table table-striped">
+    <table class="table table-striped mt-5">
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -105,7 +108,8 @@ if(!isset($_SESSION['id'])){
         </thead>
         <tbody>
             <?php
-                $table_query = "SELECT * FROM `logs` ORDER BY `logs`.`id` DESC LIMIT 20";
+                $user_id = $_SESSION['id'];
+                $table_query = "SELECT * FROM `logs` WHERE user = '$user_id' ORDER BY `logs`.`id` DESC LIMIT 20";
                 $result = mysqli_query($conn, $table_query);
                 while($row = $result->fetch_assoc()) {
                     echo '<tr>

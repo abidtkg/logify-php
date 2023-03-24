@@ -34,11 +34,23 @@ if(isset($_GET["token"])){
         exit();
     }
 
+
+    // FIND USER AND FIND APP ID AND USER
+    $app_id_find_query = "SELECT * FROM `apps` WHERE `id` = " . $data['app'];
+    $find_app = mysqli_query($conn, $app_id_find_query);
+    if(mysqli_num_rows($find_app) < 1){
+        http_response_code(400);
+        print_r(json_encode(["error" => "Invalid App ID"]));
+        exit();
+    }
+    $app_data = mysqli_fetch_assoc($find_app);
+
     // WE GOT THE DATA THAT WE NEED
     // PROCESS TO INSERT DATA IN TABLE
-    $app = $data["app"];
+    $app = $app_data['id'];
+    $user = $app_data['user'];
     $message = $data["message"];
-    $insert_query = "INSERT INTO `logs` (`app`, `message`) VALUES ('$app', '$message')";
+    $insert_query = "INSERT INTO `logs` (`app`, `user`, `message`) VALUES ('$app', $user, '$message')";
     $result = mysqli_query($conn, $insert_query);
     if($result){
         print_r(json_encode(["message" => "Data logged"]));
